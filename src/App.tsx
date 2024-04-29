@@ -140,6 +140,12 @@ function App(props: AppProps) {
       });
       try {
         setLoadingText('Joining the session...');
+        
+        console.log("Joining with the following parameters:");
+        console.log("Topic:", topic);
+        console.log("Signature:", signature);
+        console.log("Name:", name);
+
         await zmClient.join(topic, signature, name, password).catch((e) => {
           console.log(e);
         });

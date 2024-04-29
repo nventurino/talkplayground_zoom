@@ -7,7 +7,7 @@ import App from './App';
 import reportWebVitals from './reportWebVitals';
 import ZoomContext from './context/zoom-context';
 import { devConfig } from './config/dev';
-import { b64DecodeUnicode, generateVideoToken } from './utils/util';
+import { b64DecodeUnicode, fetchToken } from './utils/util';
 
 let meetingArgs: any = Object.fromEntries(new URLSearchParams(location.search));
 // Add enforceGalleryView to turn on the gallery view without SharedAddayBuffer
@@ -48,47 +48,55 @@ if (meetingArgs?.telemetry_tracking_id) {
   meetingArgs.telemetry_tracking_id = '';
 }
 
-if (!meetingArgs.signature && meetingArgs.sdkSecret && meetingArgs.topic) {
-  meetingArgs.signature = generateVideoToken(
-    meetingArgs.sdkKey,
-    meetingArgs.sdkSecret,
-    meetingArgs.topic,
-    meetingArgs.sessionKey,
-    meetingArgs.userIdentity,
-    Number(meetingArgs.role ?? 1),
-    meetingArgs.cloud_recording_option,
-    meetingArgs.cloud_recording_election,
-    meetingArgs.telemetry_tracking_id
-  );
-  console.log('=====================================');
-  console.log('meetingArgs', meetingArgs);
+// IIFE for fetching JWT token
+(async () => {
+  if (!meetingArgs.signature && meetingArgs.topic) {
+    try {
+      const signature = await fetchToken(
+        // Make sure these are the parameters your token service expects
+        meetingArgs.topic,
+        meetingArgs.password,
+        meetingArgs.name,
+        Number(meetingArgs.role ?? 1),
+        meetingArgs.cloud_recording_option,
+        meetingArgs.cloud_recording_election,
+      );
+      meetingArgs.signature = signature; // Store the fetched signature in meetingArgs
+    } catch (error) {
+      console.error('Error fetching JWT from server:', error);
+    }
 
-  const urlArgs: any = {
-    topic: meetingArgs.topic,
-    name: meetingArgs.name,
-    password: meetingArgs.password,
-    sessionKey: meetingArgs.sessionKey,
-    userIdentity: meetingArgs.userIdentity,
-    role: meetingArgs.role || 1,
-    cloud_recording_option: meetingArgs.cloud_recording_option || '',
-    cloud_recording_election: meetingArgs.cloud_recording_election || '',
-    telemetry_tracking_id: meetingArgs.telemetry_tracking_id || '',
-    enforceGalleryView: 0,
-    enforceVB: 0,
-    web: '1'
-  };
-  console.log('use url args');
-  console.log(window.location.origin + '/?' + new URLSearchParams(urlArgs).toString());
-}
-const zmClient = ZoomVideo.createClient();
-const root = createRoot(document.getElementById('root') as HTMLElement);
-root.render(
-  <React.StrictMode>
-    <ZoomContext.Provider value={zmClient}>
-      <App meetingArgs={meetingArgs as any} />
-    </ZoomContext.Provider>
-  </React.StrictMode>
+    console.log('=====================================');
+    console.log('meetingArgs', meetingArgs);
+  
+    const urlArgs: any = {
+      topic: meetingArgs.topic,
+      name: meetingArgs.name,
+      password: meetingArgs.password,
+      sessionKey: meetingArgs.sessionKey,
+      userIdentity: meetingArgs.userIdentity,
+      role: meetingArgs.role || 1,
+      cloud_recording_option: meetingArgs.cloud_recording_option || '',
+      cloud_recording_election: meetingArgs.cloud_recording_election || '',
+      telemetry_tracking_id: meetingArgs.telemetry_tracking_id || '',
+      enforceGalleryView: 0,
+      enforceVB: 0,
+      web: '1'
+    };
+    console.log('use url args');
+    console.log(window.location.origin + '/?' + new URLSearchParams(urlArgs).toString());
+
+  }
+  const zmClient = ZoomVideo.createClient();
+  const root = createRoot(document.getElementById('root') as HTMLElement);
+  root.render(
+    <React.StrictMode>
+      <ZoomContext.Provider value={zmClient}>
+        <App meetingArgs={meetingArgs as any} />
+      </ZoomContext.Provider>
+    </React.StrictMode>
 );
+})();
 
 // If you want to start measuring performance in your app, pass a function
 // to log results (for example: reportWebVitals(console.log))

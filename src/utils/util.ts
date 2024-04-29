@@ -1,61 +1,43 @@
 import { KJUR } from 'jsrsasign';
 
-// eslint-disable-next-line max-params
-export function generateVideoToken(
-  sdkKey: string,
-  sdkSecret: string,
+
+
+export async function fetchToken(
   topic: string,
-  sessionKey = '',
-  userIdentity = '',
-  roleType = 1,
-  cloud_recording_option = '',
-  cloud_recording_election = '',
-  telemetry_tracking_id = ''
+  sessionKey: string,
+  userIdentity: string,
+  roleType: number,
+  cloudRecordingOption: number,
+  cloudRecordingElection: number
 ) {
-  let signature = '';
+  // construct the payload with required parameters
+  const payload = {
+    sessionName: topic,
+    role: roleType,
+  };
+
   try {
-    const iat = Math.round(new Date().getTime() / 1000) - 30;
-    const exp = iat + 60 * 60 * 2;
+    const response = await fetch('https://talkplayground-server-902d83bdd3cf.herokuapp.com/', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload)
+    });
 
-    // Header
-    const oHeader = { alg: 'HS256', typ: 'JWT' };
-    // Payload
-    const oPayload = {
-      app_key: sdkKey,
-      iat,
-      exp,
-      tpc: topic,
-      role_type: roleType
-    };
-    if (cloud_recording_election === '' && cloud_recording_option === '1') {
-      Object.assign(oPayload, {
-        cloud_recording_option: 1
-      });
-    } else {
-      Object.assign(oPayload, {
-        cloud_recording_option: parseInt(cloud_recording_option, 10),
-        cloud_recording_election: parseInt(cloud_recording_election, 10)
-      });
-    }
-    if (sessionKey) {
-      Object.assign(oPayload, { session_key: sessionKey });
-    }
-    if (userIdentity) {
-      Object.assign(oPayload, { user_identity: userIdentity });
+    if (!response.ok) {
+      // If the HTTP response is not ok, throw an error
+      throw new Error(`HTTP error! status: ${response.status}`);
     }
 
-    if (telemetry_tracking_id) {
-      Object.assign(oPayload, { telemetry_tracking_id });
-    }
-    // Sign JWT
-    const sHeader = JSON.stringify(oHeader);
-    const sPayload = JSON.stringify(oPayload);
-    signature = KJUR.jws.JWS.sign('HS256', sHeader, sPayload, sdkSecret);
-  } catch (e) {
-    console.error(e);
+    const data = await response.json();
+    console.log('JWT from server:', data);
+    return data.signature;
+  } catch (error) {
+    console.error('Error fetching JWT from server:', error);
+    return null;
   }
-  return signature;
 }
+
+
 
 export function isShallowEqual(objA: any, objB: any) {
   if (objA === objB) {
