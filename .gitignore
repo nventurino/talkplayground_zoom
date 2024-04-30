@@ -22,7 +22,6 @@ npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 dist
-/public/lib
 .eslintcache
 
 /src/config/zoomdev.ts
