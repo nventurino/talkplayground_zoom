@@ -174,7 +174,7 @@ interface LogMessage {
 
 export const sendLog = async (message: any): Promise<void> => {
   try {
-      const response = await fetch('https://logging-server-452ae05abf59.herokuapp.com', {
+      const response = await fetch('https://logging-server-452ae05abf59.herokuapp.com/log', {
           method: 'POST',
           headers: {
               'Content-Type': 'application/json',
