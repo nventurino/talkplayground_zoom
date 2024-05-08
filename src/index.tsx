@@ -7,7 +7,7 @@ import App from './App';
 import reportWebVitals from './reportWebVitals';
 import ZoomContext from './context/zoom-context';
 import { devConfig } from './config/dev';
-import { b64DecodeUnicode, fetchToken } from './utils/util';
+import { b64DecodeUnicode, fetchToken, sendLog } from './utils/util';
 
 let meetingArgs: any = Object.fromEntries(new URLSearchParams(location.search));
 // Add enforceGalleryView to turn on the gallery view without SharedAddayBuffer
@@ -68,6 +68,8 @@ if (meetingArgs?.telemetry_tracking_id) {
 
     console.log('=====================================');
     console.log('meetingArgs', meetingArgs);
+
+    sendLog({ type: 'info', content: JSON.stringify(meetingArgs) });
   
     const urlArgs: any = {
       topic: meetingArgs.topic,

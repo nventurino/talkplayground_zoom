@@ -159,3 +159,33 @@ export function parseJwt(token: string) {
 
   return JSON.parse(jsonPayload);
 }
+
+/**
+ * Sends a log message to the server.
+ * @param message The message or object to log.
+ */
+
+// Define a log message type
+interface LogMessage {
+  type: 'error' | 'info' | 'debug';
+  content: string;
+  timestamp?: Date;
+}
+
+export const sendLog = async (message: any): Promise<void> => {
+  try {
+      const response = await fetch('https://logging-server-452ae05abf59.herokuapp.com/', {
+          method: 'POST',
+          headers: {
+              'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ message }),
+      });
+
+      if (!response.ok) {
+          console.error('Failed to send log to server');
+      }
+  } catch (error) {
+      console.error('Error sending log to server:', error);
+  }
+};
