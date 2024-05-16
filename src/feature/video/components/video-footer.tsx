@@ -9,6 +9,7 @@ import AudioVideoStatisticModal from './audio-video-statistic';
 import ZoomMediaContext from '../../../context/media-context';
 import { useUnmount, useMount } from '../../../hooks';
 import { MediaDevice } from '../video-types';
+import { sendLog } from '../../../utils/util';
 import './video-footer.scss';
 import { isAndroidOrIOSBrowser, isIOSMobile } from '../../../utils/platform';
 import { getPhoneCallStatusDescription, SELF_VIDEO_ID } from '../video-constants';
@@ -82,6 +83,19 @@ const VideoFooter = (props: VideoFooterProps) => {
   const [videoMaskVisible, setVideoMaskVisible] = useState(false);
 
   const onCameraClick = useCallback(async () => {
+
+  // Create the log object
+  const logData = {
+    isStartedVideo: isStartedVideo,
+    isSupportMultipleVideos: mediaStream?.isSupportMultipleVideos(),
+  };
+  
+  // Send the log data using the sendLog utility function
+  sendLog(logData).catch((error) => {
+    console.error('Error sending log:', error);
+  });
+
+
     if (isStartedVideo) {
       await mediaStream?.stopVideo();
       setIsStartedVideo(false);
