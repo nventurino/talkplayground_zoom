@@ -48,9 +48,11 @@ const ShareBar = forwardRef((props: ShareBarProps, ref: any) => {
     }
   }, [mediaStream, status]);
   const onShareStatusChange = useCallback(() => {
-    if (status !== mediaStream?.getShareStatus()) {
-      setStatus(mediaStream?.getShareStatus());
-    }
+    setTimeout(() => {
+      if (status !== mediaStream?.getShareStatus()) {
+        setStatus(mediaStream?.getShareStatus());
+      }
+    });
   }, [status, mediaStream]);
   useEffect(() => {
     zmClient.on('share-audio-change', onShareAudioChange);
@@ -81,7 +83,6 @@ const ShareBar = forwardRef((props: ShareBarProps, ref: any) => {
   );
   return (
     <div className={classNames({ 'share-bar-hide': status === ShareStatus.End })}>
-      (
       <Draggable handle=".share-bar-move" nodeRef={draggableRef}>
         <div className="screen-share-control-bar" ref={draggableRef}>
           <Button className="share-bar-move" ghost icon={<IconFont type="icon-move" />} />
@@ -140,7 +141,6 @@ const ShareBar = forwardRef((props: ShareBarProps, ref: any) => {
           )}
         </div>
       </Draggable>
-      )
     </div>
   );
 });

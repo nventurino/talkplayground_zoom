@@ -64,6 +64,24 @@ To get started, clone the repo:
 
 For the full list of features and event listeners, as well as additional guides, see our [Video SDK docs](https://developers.zoom.us/docs/video-sdk/web/).
 
+## Use ZFG(Zoom For Government). You need apply new sdk key for [ZFG](https://marketplace.zoomgov.com/).
+### option1 change package.json and use zfg specific version
+```
+"@zoom/videosdk": "1.10.8-zfg",
+zmClient.init('en-US', 'Global');
+```
+
+### option2 change dev.conf and use ZFG [init](https://marketplacefront.zoom.us/sdk/custom/web/modules/VideoClient.html#init) option [webEndpoint](https://marketplacefront.zoom.us/sdk/custom/web/interfaces/InitOptions.html) 
+```
+zmClient.init('en-US', `https://source.zoomgov.com/videosdk/1.10.8/lib`, {
+   webEndpoint: "www.zoomgov.com",
+});
+```
+
 ## Need help?
 
 If you're looking for help, try [Developer Support](https://devsupport.zoom.us) or our [Developer Forum](https://devforum.zoom.us). Priority support is also available with [Premier Developer Support](https://explore.zoom.us/docs/en-us/developer-support-plans.html) plans.
+
+
+
+
